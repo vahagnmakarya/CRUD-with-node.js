@@ -9,29 +9,75 @@
 </head>
 
 <body>
+    <table>
+        <tr>
+            <td>Name</td>
+            <td>Description</td>
+            <td>Price</td>
+            <td>Id</td>
+            <td class="Delete">Delete</td>
+            <td class="Update">Update</td>
+        </tr>
 
-    <ul>
         <% info.forEach(function(justOne) { %>
-        <li>
-        Id - <strong><%= justOne.theaterId %></strong> <br>
-        Street - <strong><%= justOne.location.address.street1 %></strong> <br> <br>
-        City - <strong><%= justOne.location.address.city %></strong> /
-        State - <strong><%= justOne.location.address.state %></strong> /
-        Zip code - <strong><%= justOne.location.address.zipcode %></strong> /
-        </li>
-        <% }); %>
-        </ul>
+            <tr>
+                <td>
+                    <%= justOne.name %>
+                </td>
+                <td>
+                    <%= justOne.description %>
+                </td>
+                <td>
+                    <%= justOne.price %>
+                </td>
+                <td>
+                    <%= justOne.uuid %>
+                </td>
+                <td><a href="delete/<%= justOne._id %>"><button class="noselect"><span class="text">Delete
+                                all</span><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                    height="24" viewBox="0 0 24 24">
+                                    <path
+                                        d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z">
+                                    </path>
+                                </svg></span></button></a></td>
 
-    <p id="myText">Hello World</p>
+                <td><a class="update" href="update/<%= justOne._id %>"><button style="--clr:#39FF14"
+                            class="update"><span>Update</span><i></i></button></a></td>
+            </tr>
+            <% }); %>
 
-    <!-- <form action="/addName" method="post"> -->
-    <input id="usName" type="text" name="name" placeholder="Please type your name"><br><br>
-    <input id="usEmail" type="email" name="password" placeholder="Please type your email"><br><br>
-    <input id="usPassword" type="password" name="password" placeholder="Please type your password"><br><br>
-    <input onclick="getVal()" type="submit">
-    <!-- </form> -->
+                <form action="/addName" method="post">
+                    <div class="form">
+                        <div class="title">Welcome</div>
+                        <div class="subtitle">Let's create your account!</div>
+                        <div class="input-container ic1">
+                            <input id="firstname" class="input" name="name" placeholder=" " />
+                            <div class="cut"></div>
+                            <label for="firstname" class="placeholder">Please type your name</label>
+                        </div>
 
-    <script src="script.js"></script>
+                        <div class="input-container ic2">
+                            <input id="email" class="input" name="description" placeholder=" " />
+                            <div class="cutfordescription"></div>
+                            <label for="email" class="placeholder">Please type your description</>
+                        </div>
+
+                        <div class="input-container ic2">
+                            <input id="lastname" class="input" type="number" name="price" placeholder=" " />
+                            <div class="cut"></div>
+                            <label for="lastname" class="placeholder">Please type your price</label>
+                        </div>
+
+                        <div class="input-container ic2">
+                            <input id="lastname" class="input" name="uuid" placeholder=" " />
+                            <div class="cut"></div>
+                            <label for="lastname" class="placeholder">Please type your uuid</label>
+                        </div>
+
+                        <button type="text" class="submit">submit</button>
+                    </div>
+
+                </form>
 </body>
 
 </html>

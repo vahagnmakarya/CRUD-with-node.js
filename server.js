@@ -2,9 +2,11 @@ var express = require("express");
 var path = require("path");
 const bodyParser = require('body-parser');
 var app = express();
+const { ObjectId } = require('mongoose').Types;
 
 const mongoose = require('mongoose');
-const connectionString = 'mongodb+srv://vahagnmakaryan:Dasyntac@cluster0.j1zhiul.mongodb.net/sample_mflix';
+const { cwd } = require("process");
+const connectionString = 'mongodb+srv://vahagnmakaryan:Dasyntac@cluster0.j1zhiul.mongodb.net/TumoProduct';
 
 app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -19,8 +21,7 @@ db.on('error', console.error.bind(console, 'Connection error:'));
 db.once('open', async () => {
     console.log('Connected to MongoDB!');
     try {
-        const allMovies = await mongoose.connection.db.collection('theaters').find({'location.address.city' : 'Bloomington'}).toArray();
-        console.log('All Movies:', allMovies);
+        const allMovies = await mongoose.connection.db.collection('Products').find().toArray();
         app.get("/", function (req, res) {
             res.render('../public/form.ejs', {
                 info: allMovies,
@@ -33,138 +34,97 @@ db.once('open', async () => {
     }
 });
 
-app.post('/addName', (req, res) => {
+app.post('/addName', async (req, res) => {
     const name = req.body.name;
-    const email = req.body.email;
-    const password = req.body.password;
-    console.log('Received dataa:', name, email, password);
-    res.redirect('/');
+    const price = req.body.price;
+    const des = req.body.description;
+    const uuid = req.body.uuid;
+    mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+    const db = mongoose.connection;
+    db.on('error', console.error.bind(console, 'Connection error:'));
+    db.once('open', async () => {
+        console.log('Connected to MongoDB!');
+        try {
+            let result = await mongoose.connection.db.collection('Products').insertOne({
+                name: name,
+                price: price,
+                description: des,
+                uuid: uuid
+            })
+            res.redirect('/')
+        } catch (error) {
+            console.error('Error retrieving movies:', error);
+        } finally {
+            mongoose.connection.close();
+        }
+    })
 });
 
+app.get("/delete/:id", function (req, res) {
+    var id = req.params.id;
+    mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+    const db = mongoose.connection;
+    db.on('error', console.error.bind(console, 'Connection error:'));
+    db.once('open', async () => {
+        try {
+            let result = await mongoose.connection.db.collection('Products').deleteOne({ _id: new ObjectId(id) });
+            res.redirect('/')
+        } catch (error) {
+            console.error('Error retrieving movies:', error);
+        } finally {
+            mongoose.connection.close();
+        }
+    })
+});
 
+app.get("/update/:id", function (req, res) {
+    var id = req.params.id;
+    mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+    const db = mongoose.connection;
+    db.on('error', console.error.bind(console, 'Connection error:'));
+    db.once('open', async () => {
+        try {
+            let result = await mongoose.connection.db.collection('Products').findOne({ _id: new ObjectId(id) });
+            res.render('../public/update.ejs', {
+                info: result
+            });
+        } catch (error) {
+            console.error('Error retrieving movies:', error);
+        } finally {
+            mongoose.connection.close();
+        }
+    })
+});
+
+app.post("/updateData", function (req, res) {
+    const name = req.body.name;
+    const price = req.body.price;
+    const des = req.body.description;
+    const uuid = req.body.uuid;
+    const id = req.body.id;
+
+    mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+    const db = mongoose.connection;
+
+    db.on('error', console.error.bind(console, 'Connection error:'));
+
+    db.once('open', async () => {
+        console.log('Connected to MongoDB!');
+
+        try {
+            let result = await mongoose.connection.db.collection('Products').updateOne(
+                { _id: new ObjectId(id) },
+                { $set: { name: name, price: price, description: des, uuid: uuid } }
+            );
+            res.redirect('/')
+        } catch (error) {
+            console.error('Error updating product:', error);
+        } finally {
+            mongoose.connection.close();
+        }
+    });
+});
 
 app.listen(3000, function () {
     console.log("Example is running on port 3000");
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// app.post('/addName', (req, res) => {
-//     const name = req.body.name;
-//     const email = req.body.email;
-//     const password = req.body.password;
-//     console.log('Received dataa:', name, email, password);
-
-//     mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-//     const db = mongoose.connection;
-
-//     db.on('error', console.error.bind(console, 'Connection error:'));
-//     db.once('open', async () => {
-//         console.log('Connected to MongoDB!');
-//         try {
-//             const allMovies = await mongoose.connection.db.collection('users').insertOne(
-//                 {
-//                     'name': name,
-//                     'email': email,
-//                     'password': password
-//                 });
-//             console.log('All Movies:', allMovies);
-//         } catch (error) {
-//             console.error('Error retrieving movies:', error);
-//         } finally {
-//             mongoose.connection.close();
-//         }
-//     });
-//     res.redirect('/');
-// });
-
-// app.listen(3000, function () {
-//     console.log("Example is running on port 3000");
-// });
-
-
-
-
-
-
-
-
-
-// const mongoose = require('mongoose');
-// const connectionString = 'mongodb+srv://vahagnmakaryan:Dasyntac@cluster0.j1zhiul.mongodb.net/sample_mflix';
-
-// mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-// const db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'Connection error:'));
-// db.once('open', async () => {
-//     console.log('Connected to MongoDB!');
-
-//     try {
-//         const allMovies = await mongoose.connection.db.collection('movies').find({theaterID : 1000});
-
-//         console.log('All Movies:', allMovies);
-//     } catch (error) {
-//         console.error('Error retrieving movies:', error);
-//     } finally {
-//         mongoose.connection.close();
-//     }
-// });
-
-//update
-// const mongoose = require('mongoose');
-// const connectionString = 'mongodb+srv://vahagnmakaryan:Dasyntac@cluster0.j1zhiul.mongodb.net/sample_mflix';
-
-// mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-// const db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'Connection error:'));
-// db.once('open', async () => {
-//     console.log('Connected to MongoDB!');
-
-//     try {
-//         const allMovies = await mongoose.connection.db.collection('movies').updateMany({'title': 'The Black Pirate'} , { $set: { year: 3000 } , $set: { plot: 'barev' }});
-
-//         console.log('All Movies:', allMovies);
-//     } catch (error) {
-//         console.error('Error retrieving movies:', error);
-//     } finally {
-//         mongoose.connection.close();
-//     }
-// });
-
-
-//insert
-// const mongoose = require('mongoose');
-// const connectionString = 'mongodb+srv://vahagnmakaryan:Dasyntac@cluster0.j1zhiul.mongodb.net/sample_mflix';
-
-// mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-// const db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'Connection error:'));
-// db.once('open', async () => {
-//     console.log('Connected to MongoDB!');
-
-//     try {
-//         const allMovies = await mongoose.connection.db.collection('users').insertMany([{'name': 'Ashot', 'email': 'Ashot@gmail.com', 'password': 'password'},{'name': 'Vahagn', 'email': 'Vahagn@gmail.com', 'password': 'password'}]);
-
-//         console.log('All Movies:', allMovies);
-//     } catch (error) {
-//         console.error('Error retrieving movies:', error);
-//     } finally {
-//         mongoose.connection.close();
-//     }
-// });
